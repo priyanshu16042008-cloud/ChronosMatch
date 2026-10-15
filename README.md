@@ -1,5 +1,6 @@
 
 # ChronosMatch
+
 ### Python-Based Order Matching Engine for Simulated Trading
 
 ChronosMatch is a Python project that simulates a basic trading order book. It matches buy and sell orders according to price priority and order arrival time.
@@ -19,12 +20,13 @@ ChronosMatch is a Python project that simulates a basic trading order book. It m
 
 ```text
 ChronosMatch/
+├── .gitignore
+├── README.md
 ├── order.py
 ├── matching_engine.py
 ├── test_engine.py
 ├── benchmark.py
-├── benchmark_results.md
-└── README.md
+└── benchmark_results.md
 ```
 
 ## Requirements
@@ -33,8 +35,6 @@ ChronosMatch/
 - No third-party packages required for the core engine and tests
 
 ## How to Run
-
-Run the matching engine:
 
 ```bash
 python matching_engine.py
