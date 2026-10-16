@@ -1,41 +1,81 @@
+
+import heapq
+import math
+from itertools import count
+
 from order import Order
 
 
 class MatchingEngine:
     def __init__(self):
-        self.buy_orders = []
-        self.sell_orders = []
+        # BUY: highest price first, then earlier order first
+        self._buy_heap = []
+
+        # SELL: lowest price first, then earlier order first
+        self._sell_heap = []
+
         self.trades = []
         self.order_ids = set()
+        self._sequence = count()
+
+    @property
+    def buy_orders(self):
+        """Return BUY orders in price-priority and FIFO order."""
+        return [
+            entry[2]
+            for entry in sorted(self._buy_heap)
+        ]
+
+    @property
+    def sell_orders(self):
+        """Return SELL orders in price-priority and FIFO order."""
+        return [
+            entry[2]
+            for entry in sorted(self._sell_heap)
+        ]
 
     def add_order(self, order: Order):
+        # Validate before reserving the order ID.
         if order.order_id in self.order_ids:
             raise ValueError("Duplicate order ID")
 
-        if order.price <= 0 or order.quantity <= 0:
-           raise ValueError("Price and quantity must be positive")
-    
         if order.side not in ("BUY", "SELL"):
             raise ValueError("Invalid order side")
 
-        if order.price != order.price or order.price == float("inf") or order.price == float("-inf"):
-            raise ValueError("Price must be finite")
+        if (
+            type(order.price) not in (int, float)
+            or not math.isfinite(order.price)
+            or order.price <= 0
+        ):
+            raise ValueError("Price must be finite and positive")
+
+        if type(order.quantity) is not int or order.quantity <= 0:
+            raise ValueError("Quantity must be a positive integer")
+
+        sequence_number = next(self._sequence)
 
         if order.side == "BUY":
-            self.buy_orders.append(order)
-            self.buy_orders.sort(key=lambda o: -o.price)
+            heapq.heappush(
+                self._buy_heap,
+                (-order.price, sequence_number, order)
+            )
         else:
-            self.sell_orders.append(order)
-            self.sell_orders.sort(key=lambda o: o.price)
+            heapq.heappush(
+                self._sell_heap,
+                (order.price, sequence_number, order)
+            )
 
         self.order_ids.add(order.order_id)
 
     def match_orders(self):
-        while self.buy_orders and self.sell_orders:
-            buy = self.buy_orders[0]
-            sell = self.sell_orders[0]
+        while self._buy_heap and self._sell_heap:
+            buy_entry = self._buy_heap[0]
+            sell_entry = self._sell_heap[0]
 
-            # Best buy price must meet or exceed best sell price
+            buy = buy_entry[2]
+            sell = sell_entry[2]
+
+            # Stop if the best BUY cannot meet the best SELL.
             if buy.price < sell.price:
                 break
 
@@ -53,10 +93,10 @@ class MatchingEngine:
             sell.quantity -= traded_quantity
 
             if buy.quantity == 0:
-                self.buy_orders.pop(0)
+                heapq.heappop(self._buy_heap)
 
             if sell.quantity == 0:
-                self.sell_orders.pop(0)
+                heapq.heappop(self._sell_heap)
 
     def show_state(self):
         print("Buy orders:", self.buy_orders)
