@@ -3,18 +3,19 @@
 
 ### Python-Based Order Matching Engine for Simulated Trading
 
-ChronosMatch is a Python project that simulates a basic trading order book. It matches buy and sell orders according to price priority and order arrival time.
+ChronosMatch is a Python-based simulated trading engine that matches buy and sell orders using price-time priority. It uses heap-based data structures to efficiently select the highest-priority orders.
 
 ## Features
 
 - Buy and sell order management
-- Price-based order priority
+- Price-time priority matching
 - FIFO (First In, First Out) for orders at the same price
-- Automatic matching of compatible buy and sell orders
+- Heap-based order prioritization
+- Automatic matching of compatible orders
 - Partial order execution
-- Duplicate order ID validation
-- Unit testing with Python's unittest framework
-- Basic performance benchmarking
+- Order validation and duplicate ID protection
+- Unit testing with Python's `unittest` framework
+- Performance benchmarking for different workloads
 
 ## Project Structure
 
@@ -36,6 +37,8 @@ ChronosMatch/
 
 ## How to Run
 
+Run the matching engine:
+
 ```bash
 python matching_engine.py
 ```
@@ -46,22 +49,32 @@ python matching_engine.py
 python -m unittest test_engine -v
 ```
 
-## Run Benchmark
+The tests cover order validation, price priority, FIFO behavior, partial fills, and other matching scenarios.
+
+## Run Benchmarks
 
 ```bash
 python benchmark.py
 ```
 
-The benchmark measures order matching time for the configured workload. Results may vary between runs and depend on the machine and workload.
+Benchmark results and methodology are documented in `benchmark_results.md`. Performance can vary depending on the machine and workload.
 
-## Scope
+## Matching Rules
 
-This project focuses on the core order matching engine. It is an educational simulation and is not a production-ready high-frequency trading system.
+- Buy orders with higher prices receive priority.
+- Sell orders with lower prices receive priority.
+- Orders at the same price are processed in arrival order.
+- A trade occurs when the best buy price meets or exceeds the best sell price.
+- Partially filled orders remain in the order book until completed.
 
-## Current Status
+## Scope and Limitations
 
-- Core matching logic implemented
+ChronosMatch is an educational simulation focused on the core order matching engine. It is not a production-ready high-frequency trading system and does not implement a real exchange connection, live market data, or production trading infrastructure.
+
+## Project Status
+
+- Core matching engine implemented using heaps
 - Order validation implemented
-- Unit tests passing
-- Basic benchmark implemented
-- Documentation in progress
+- Unit tests implemented
+- Benchmark script and results documented
+- Team-level integration and additional project documentation may still be in progress
