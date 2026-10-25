@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronosMatch | Trading Engine</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">C</div>
+            <div>
+                <h2>ChronosMatch</h2>
+                <small>TRADING ENGINE</small>
+            </div>
+        </div>
+
+        <nav>
+            <a class="active" href="#dashboard">◈ Dashboard</a>
+            <a href="#orders">⇄ Orders</a>
+            <a href="#trades">↗ Matched Trades</a>
+            <a href="#orderbook">▤ Order Book</a>
+            <a href="#performance">⌁ Performance</a>
+        </nav>
+
+        <div class="engine-status">
+            <span class="dot"></span>
+            <div>
+                <strong>Engine Status</strong>
+                <small>System Online</small>
+            </div>
+        </div>
+
+        <p class="version">ChronosMatch v1.0</p>
+    </aside>
+
+    <!-- Main dashboard -->
+    <main class="main" id="dashboard">
+
+        <!-- Header with actual buffalo image -->
+        <header class="hero">
+            <div class="buffalo-background">
+                <img src="{{ url_for('static', filename='BUFFALOO.png') }}"
+                     alt="Neon cyber buffalo">
+            </div>
+
+            <div class="hero-content">
+                <p class="eyebrow">TRADING SYSTEM / OVERVIEW</p>
+                <h1>Dashboard</h1>
+                <p>Monitor orders and matching engine activity in real time.</p>
+            </div>
+
+            <div class="market-ticker">
+                <div>
+                    <span>CMX/USD</span>
+                    <strong>$184.24</strong>
+                    <small class="up">+1.28%</small>
+                </div>
+                <div>
+                    <span>NOVA/USD</span>
+                    <strong>$72.51</strong>
+                    <small class="up">+0.64%</small>
+                </div>
+                <div>
+                    <span>ETH/USD</span>
+                    <strong>$3,521.90</strong>
+                    <small class="down">-0.32%</small>
+                </div>
+            </div>
+
+            <div class="live-market">
+                <span class="dot"></span> LIVE MARKET
+                <strong>{{ current_time }}</strong>
+            </div>
+        </header>
+
+        <!-- Exactly three summary cards -->
+        <section class="metrics">
+            <article class="metric purple">
+                <div class="metric-icon">▤</div>
+                <div>
+                    <span>Total Orders</span>
+                    <h2>{{ total_orders }}</h2>
+                    <small>All submitted orders</small>
+                </div>
+            </article>
+
+            <article class="metric cyan">
+                <div class="metric-icon">⇄</div>
+                <div>
+                    <span>Matched Trades</span>
+                    <h2>{{ matched_trades }}</h2>
+                    <small>Successfully matched trades</small>
+                </div>
+            </article>
+
+            <article class="metric orange">
+                <div class="metric-icon">◷</div>
+                <div>
+                    <span>Pending Orders</span>
+                    <h2>{{ pending_orders }}</h2>
+                    <small>Awaiting matching</small>
+                </div>
+            </article>
+        </section>
+
+        <!-- Performance -->
+        <section class="panel performance" id="performance">
+            <div class="section-title">
+                <div>
+                    <small>ENGINE MONITOR</small>
+                    <h2>Engine Performance</h2>
+                </div>
+                <span class="badge">● LIVE</span>
+            </div>
+
+            <div class="performance-grid">
+                <div>
+                    <span>Processing Latency</span>
+                    <h3>0.42 ms</h3>
+                    <div class="progress"><i style="width:35%"></i></div>
+                </div>
+                <div>
+                    <span>Throughput</span>
+                    <h3>12.8K orders/sec</h3>
+                    <div class="progress"><i style="width:72%"></i></div>
+                </div>
+                <div>
+                    <span>CPU Utilization</span>
+                    <h3>34%</h3>
+                    <div class="progress"><i style="width:34%"></i></div>
+                </div>
+                <div>
+                    <span>Memory Usage</span>
+                    <h3>48%</h3>
+                    <div class="progress"><i style="width:48%"></i></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order book and order form -->
+        <div class="two-columns">
+
+            <section class="panel" id="orderbook">
+                <div class="section-title">
+                    <h2>▥ Order Book</h2>
+                    <select aria-label="Trading pair">
+                        <option>CMX/USD</option>
+                        <option>NOVA/USD</option>
+                        <option>ETH/USD</option>
+                    </select>
+                </div>
+
+                <div class="book-grid">
+                    <div>
+                        <h4 class="sell-text">SELL ORDERS</h4>
+                        <div class="book-head">
+                            <span>Price</span><span>Qty</span><span>Total</span>
+                        </div>
+                        {% for price, qty in [(184.32,120),(184.30,85),(184.28,200),(184.25,150),(184.22,300)] %}
+                        <div class="book-row sell-row">
+                            <span>{{ "%.2f"|format(price) }}</span>
+                            <span>{{ qty }}</span>
+                            <span>{{ "%.2f"|format(price * qty) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <h4 class="buy-text">BUY ORDERS</h4>
+                        <div class="book-head">
+                            <span>Price</span><span>Qty</span><span>Total</span>
+                        </div>
+                        {% for price, qty in [(184.24,250),(184.23,180),(184.20,320),(184.18,150),(184.15,100)] %}
+                        <div class="book-row buy-row">
+                            <span>{{ "%.2f"|format(price) }}</span>
+                            <span>{{ qty }}</span>
+                            <span>{{ "%.2f"|format(price * qty) }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="spread">
+                    Market Spread <strong>$0.02</strong>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-title">
+                    <h2>＋ Place New Order</h2>
+                </div>
+
+                <form action="/api/order" method="post">
+                    <label for="symbol">Trading Pair</label>
+                    <select name="symbol" id="symbol">
+                        <option>CMX/USD</option>
+                        <option>NOVA/USD</option>
+                        <option>ETH/USD</option>
+                    </select>
+
+                    <label>Order Side</label>
+                    <div class="side-options">
+                        <label class="buy-choice">
+                            <input type="radio" name="side" value="BUY" checked>
+                            BUY
+                        </label>
+                        <label class="sell-choice">
+                            <input type="radio" name="side" value="SELL">
+                            SELL
+                        </label>
+                    </div>
+
+                    <div class="input-grid">
+                        <div>
+                            <label for="quantity">Quantity</label>
+                            <input id="quantity" name="quantity"
+                                   type="number" min="1" value="100" required>
+                        </div>
+                        <div>
+                            <label for="price">Price (USD)</label>
+                            <input id="price" name="price"
+                                   type="number" min="0.01" step="0.01"
+                                   value="184.20" required>
+                        </div>
+                    </div>
+
+                    <div class="estimate">
+                        <span>Estimated Order Value</span>
+                        <strong>$18,420.00</strong>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        Submit Order →
+                    </button>
+                </form>
+            </section>
+        </div>
+
+        <!-- Recent orders -->
+        <section class="panel table-panel" id="orders">
+            <div class="section-title">
+                <h2>▤ Recent Orders</h2>
+                <span class="badge">{{ total_orders }} orders</span>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ORDER ID</th><th>SYMBOL</th><th>SIDE</th>
+                            <th>QUANTITY</th><th>PRICE</th><th>STATUS</th>
+                            <th>TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.symbol }}</td>
+                            <td class="{{ 'side-buy' if order.side == 'BUY' else 'side-sell' }}">
+                                {{ order.side }}
+                            </td>
+                            <td>{{ order.quantity }}</td>
+                            <td>${{ "%.2f"|format(order.price) }}</td>
+                            <td><span class="status status-{{ order.status }}">
+                                {{ order.status }}
+                            </span></td>
+                            <td>{{ order.time }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7">No orders available.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Matched trades -->
+        <section class="panel table-panel" id="trades">
+            <div class="section-title">
+                <h2>⇄ Matched Trades</h2>
+                <span class="badge">{{ matched_trades }} trades</span>
+            </div>
+
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>TRADE ID</th><th>SYMBOL</th><th>SIDE</th>
+                            <th>QUANTITY</th><th>PRICE</th><th>EXECUTED AT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trade in trades %}
+                        <tr>
+                            <td>{{ trade.id }}</td>
+                            <td>{{ trade.symbol }}</td>
+                            <td class="{{ 'side-buy' if trade.side == 'BUY' else 'side-sell' }}">
+                                {{ trade.side }}
+                            </td>
+                            <td>{{ trade.quantity }}</td>
+                            <td>${{ "%.2f"|format(trade.price) }}</td>
+                            <td>{{ trade.time }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="6">No matched trades available.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <span>ChronosMatch Trading Engine</span>
+            <span>Python Flask Dashboard</span>
+        </footer>
+    </main>
+</div>
+</body>
+</html>
