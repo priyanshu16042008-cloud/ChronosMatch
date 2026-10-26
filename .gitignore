@@ -1,2 +1,5 @@
 __pycache__/
 *.py[cod]
+build/
+*.pyd
+orders_buffer.dat
