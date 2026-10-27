@@ -1,4 +1,3 @@
-
 import heapq
 import math
 from itertools import count
@@ -8,34 +7,40 @@ from order import Order
 
 class MatchingEngine:
     def __init__(self):
-        # BUY: highest price first, then earlier order first
-        self._buy_heap = []
-
-        # SELL: lowest price first, then earlier order first
-        self._sell_heap = []
+        # Separate order books for each trading symbol
+        self._buy_heaps = {}
+        self._sell_heaps = {}
 
         self.trades = []
         self.order_ids = set()
         self._sequence = count()
 
+    def _get_heaps(self, symbol):
+        if symbol not in self._buy_heaps:
+            self._buy_heaps[symbol] = []
+            self._sell_heaps[symbol] = []
+
+        return self._buy_heaps[symbol], self._sell_heaps[symbol]
+
     @property
     def buy_orders(self):
-        """Return BUY orders in price-priority and FIFO order."""
+        """All BUY orders, sorted by price and FIFO priority."""
         return [
             entry[2]
-            for entry in sorted(self._buy_heap)
+            for symbol in self._buy_heaps
+            for entry in sorted(self._buy_heaps[symbol])
         ]
 
     @property
     def sell_orders(self):
-        """Return SELL orders in price-priority and FIFO order."""
+        """All SELL orders, sorted by price and FIFO priority."""
         return [
             entry[2]
-            for entry in sorted(self._sell_heap)
+            for symbol in self._sell_heaps
+            for entry in sorted(self._sell_heaps[symbol])
         ]
 
     def add_order(self, order: Order):
-        # Validate before reserving the order ID.
         if order.order_id in self.order_ids:
             raise ValueError("Duplicate order ID")
 
@@ -52,51 +57,63 @@ class MatchingEngine:
         if type(order.quantity) is not int or order.quantity <= 0:
             raise ValueError("Quantity must be a positive integer")
 
+        if not isinstance(order.symbol, str) or not order.symbol.strip():
+            raise ValueError("Symbol must be a non-empty string")
+
+        symbol = order.symbol.strip().upper()
+        order.symbol = symbol
+
+        buy_heap, sell_heap = self._get_heaps(symbol)
         sequence_number = next(self._sequence)
 
         if order.side == "BUY":
             heapq.heappush(
-                self._buy_heap,
+                buy_heap,
                 (-order.price, sequence_number, order)
             )
         else:
             heapq.heappush(
-                self._sell_heap,
+                sell_heap,
                 (order.price, sequence_number, order)
             )
 
         self.order_ids.add(order.order_id)
 
     def match_orders(self):
-        while self._buy_heap and self._sell_heap:
-            buy_entry = self._buy_heap[0]
-            sell_entry = self._sell_heap[0]
+        """Match orders only when their trading symbols are identical."""
+        for symbol in self._buy_heaps:
+            buy_heap = self._buy_heaps[symbol]
+            sell_heap = self._sell_heaps[symbol]
 
-            buy = buy_entry[2]
-            sell = sell_entry[2]
+            while buy_heap and sell_heap:
+                buy_entry = buy_heap[0]
+                sell_entry = sell_heap[0]
 
-            # Stop if the best BUY cannot meet the best SELL.
-            if buy.price < sell.price:
-                break
+                buy = buy_entry[2]
+                sell = sell_entry[2]
 
-            traded_quantity = min(buy.quantity, sell.quantity)
-            trade_price = sell.price
+                if buy.price < sell.price:
+                    break
 
-            self.trades.append({
-                "buy_order_id": buy.order_id,
-                "sell_order_id": sell.order_id,
-                "price": trade_price,
-                "quantity": traded_quantity
-            })
+                traded_quantity = min(buy.quantity, sell.quantity)
+                trade_price = sell.price
 
-            buy.quantity -= traded_quantity
-            sell.quantity -= traded_quantity
+                self.trades.append({
+                    "buy_order_id": buy.order_id,
+                    "sell_order_id": sell.order_id,
+                    "symbol": symbol,
+                    "price": trade_price,
+                    "quantity": traded_quantity
+                })
 
-            if buy.quantity == 0:
-                heapq.heappop(self._buy_heap)
+                buy.quantity -= traded_quantity
+                sell.quantity -= traded_quantity
 
-            if sell.quantity == 0:
-                heapq.heappop(self._sell_heap)
+                if buy.quantity == 0:
+                    heapq.heappop(buy_heap)
+
+                if sell.quantity == 0:
+                    heapq.heappop(sell_heap)
 
     def show_state(self):
         print("Buy orders:", self.buy_orders)

@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from datetime import datetime
 
@@ -47,7 +48,7 @@ def sync_dashboard_data():
 
         orders.append({
             "id": f"ORD-{order_id}",
-            "symbol": details["symbol"],
+            "symbol": engine_order.symbol,
             "side": engine_order.side,
             "quantity": engine_order.quantity,
             "original_quantity": details["original_quantity"],
@@ -56,7 +57,7 @@ def sync_dashboard_data():
             "time": details["time"]
         })
 
-    # Enrich the engine's actual executions for the dashboard.
+    # Enrich actual executions for the dashboard.
     trade_details = []
 
     for index, trade in enumerate(engine.trades, start=1):
@@ -64,13 +65,12 @@ def sync_dashboard_data():
         sell_id = trade["sell_order_id"]
 
         buy_details = order_details[buy_id]
-        sell_details = order_details[sell_id]
 
         trade_details.append({
             "id": f"TRD-{index:05d}",
             "buy_order_id": f"ORD-{buy_id}",
             "sell_order_id": f"ORD-{sell_id}",
-            "symbol": buy_details["symbol"],
+            "symbol": trade["symbol"],
             "side": "BUY",
             "quantity": trade["quantity"],
             "price": trade["price"],
@@ -140,7 +140,8 @@ def create_order():
             order_id=next_order_id,
             side=side,
             price=price,
-            quantity=quantity
+            quantity=quantity,
+            symbol=symbol
         )
 
         created_at = datetime.now().strftime("%H:%M:%S")
@@ -172,7 +173,6 @@ def create_order():
                 "trades": trade_details
             }), 201
 
-        # Standard HTML form submissions return to the dashboard.
         return redirect(url_for("dashboard"))
 
     except (KeyError, TypeError, ValueError, OverflowError) as error:

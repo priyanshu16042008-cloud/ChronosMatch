@@ -1,4 +1,3 @@
-
 import math
 from dataclasses import dataclass
 from typing import Literal
@@ -10,6 +9,7 @@ class Order:
     side: Literal["BUY", "SELL"]
     price: float
     quantity: int
+    symbol: str = "CMX/USD"
 
     def __post_init__(self):
         if type(self.order_id) is not int:
@@ -26,8 +26,14 @@ class Order:
 
         if not math.isfinite(self.price) or self.price <= 0:
             raise ValueError("Price must be finite and positive")
+
         if type(self.quantity) is not int:
             raise ValueError("Quantity must be an integer")
 
         if self.quantity <= 0:
             raise ValueError("Quantity must be positive")
+
+        if not isinstance(self.symbol, str) or not self.symbol.strip():
+            raise ValueError("Symbol must be a non-empty string")
+
+        self.symbol = self.symbol.strip().upper()

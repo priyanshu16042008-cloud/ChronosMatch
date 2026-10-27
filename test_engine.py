@@ -168,5 +168,33 @@ class TestMatchingEngine(unittest.TestCase):
 
         self.assertEqual(len(engine.buy_orders), 1)
 
+    def test_different_symbols_do_not_match(self):
+        engine = MatchingEngine()
+
+        engine.add_order(Order(1, "BUY", 100.0, 5, symbol="CMX/USD"))
+        engine.add_order(Order(2, "SELL", 90.0, 5, symbol="ETH/USD"))
+
+        engine.match_orders()
+
+        self.assertEqual(len(engine.trades), 0)
+        self.assertEqual(len(engine.buy_orders), 1)
+        self.assertEqual(len(engine.sell_orders), 1)
+
+    def test_same_symbol_orders_match(self):
+        engine = MatchingEngine()
+
+        engine.add_order(Order(1, "BUY", 100.0, 5, symbol="ETH/USD"))
+        engine.add_order(Order(2, "SELL", 95.0, 5, symbol="ETH/USD"))
+
+        engine.match_orders()
+
+        self.assertEqual(len(engine.trades), 1)
+        self.assertEqual(engine.trades[0]["symbol"], "ETH/USD")
+
+    def test_symbol_is_normalized(self):
+        order = Order(1, "BUY", 100.0, 5, symbol=" eth/usd ")
+
+        self.assertEqual(order.symbol, "ETH/USD")
+
 if __name__ == "__main__":
     unittest.main()
