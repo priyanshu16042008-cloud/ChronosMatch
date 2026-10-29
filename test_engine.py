@@ -130,6 +130,10 @@ class TestMatchingEngine(unittest.TestCase):
         with self.assertRaises(ValueError):
             Order(1, "BUY", 100.0, 2.5)
 
+    def test_boolean_quantity_is_rejected(self):
+        with self.assertRaises(ValueError):
+            Order(1, "BUY", 100.0, True)
+
     def test_nan_price_is_rejected(self):
         with self.assertRaises(ValueError):
             Order(1, "BUY", float("nan"), 5)
@@ -195,6 +199,22 @@ class TestMatchingEngine(unittest.TestCase):
         order = Order(1, "BUY", 100.0, 5, symbol=" eth/usd ")
 
         self.assertEqual(order.symbol, "ETH/USD")
+
+    def test_different_symbols_do_not_share_trades(self):
+        engine = MatchingEngine()
+
+        engine.add_order(
+            Order(1, "BUY", 100.0, 5, symbol="CMX/USD")
+        )
+        engine.add_order(
+            Order(2, "SELL", 90.0, 5, symbol="ETH/USD")
+        )
+
+        engine.match_orders()
+
+        self.assertEqual(len(engine.trades), 0)
+        self.assertEqual(len(engine.buy_orders), 1)
+        self.assertEqual(len(engine.sell_orders), 1)
 
 if __name__ == "__main__":
     unittest.main()
