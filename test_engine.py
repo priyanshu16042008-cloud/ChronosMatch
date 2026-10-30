@@ -138,6 +138,10 @@ class TestMatchingEngine(unittest.TestCase):
         with self.assertRaises(ValueError):
             Order(1, "BUY", float("nan"), 5)
 
+    def test_boolean_price_is_rejected(self):
+        with self.assertRaises(ValueError):
+            Order(1, "BUY", True, 5)
+
     def test_infinite_price_is_rejected(self):
         with self.assertRaises(ValueError):
             Order(1, "BUY", float("inf"), 5)
