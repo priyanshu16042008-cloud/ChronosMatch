@@ -220,5 +220,12 @@ class TestMatchingEngine(unittest.TestCase):
         self.assertEqual(len(engine.buy_orders), 1)
         self.assertEqual(len(engine.sell_orders), 1)
 
+    def test_order_side_is_normalized(self):
+        buy_order = Order(101, "buy", 100, 5)
+        sell_order = Order(102, "sell", 101, 5)
+
+        self.assertEqual(buy_order.side, "BUY")
+        self.assertEqual(sell_order.side, "SELL")
+
 if __name__ == "__main__":
     unittest.main()

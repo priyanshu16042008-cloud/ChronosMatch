@@ -18,9 +18,13 @@ class Order:
         if self.order_id <= 0:
             raise ValueError("Order ID must be positive")
 
+        if not isinstance(self.side, str):
+            raise ValueError("Side must be a string")
+
+        self.side = self.side.strip().upper()
+
         if self.side not in ("BUY", "SELL"):
             raise ValueError("Side must be BUY or SELL")
-
         if type(self.price) not in (int, float):
             raise ValueError("Price must be a number")
 
