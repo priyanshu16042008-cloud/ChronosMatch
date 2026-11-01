@@ -81,7 +81,7 @@ class MatchingEngine:
 
     def match_orders(self):
         """Match orders only when their trading symbols are identical."""
-        for symbol in self._buy_heaps:
+        for symbol in list(self._buy_heaps):
             buy_heap = self._buy_heaps[symbol]
             sell_heap = self._sell_heaps[symbol]
 
@@ -114,6 +114,10 @@ class MatchingEngine:
 
                 if sell.quantity == 0:
                     heapq.heappop(sell_heap)
+
+            if not buy_heap and not sell_heap:
+                del self._buy_heaps[symbol]
+                del self._sell_heaps[symbol]
 
     def show_state(self):
         print("Buy orders:", self.buy_orders)

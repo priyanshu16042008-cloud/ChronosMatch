@@ -227,5 +227,16 @@ class TestMatchingEngine(unittest.TestCase):
         self.assertEqual(buy_order.side, "BUY")
         self.assertEqual(sell_order.side, "SELL")
 
+    def test_empty_symbol_order_book_is_removed_after_matching(self):
+        engine = MatchingEngine()
+
+        engine.add_order(Order(1, "BUY", 100, 5, symbol="ETH/USD"))
+        engine.add_order(Order(2, "SELL", 95, 5, symbol="ETH/USD"))
+
+        engine.match_orders()
+
+        self.assertNotIn("ETH/USD", engine._buy_heaps)
+        self.assertNotIn("ETH/USD", engine._sell_heaps)
+
 if __name__ == "__main__":
     unittest.main()
