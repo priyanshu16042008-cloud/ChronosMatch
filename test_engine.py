@@ -238,5 +238,16 @@ class TestMatchingEngine(unittest.TestCase):
         self.assertNotIn("ETH/USD", engine._buy_heaps)
         self.assertNotIn("ETH/USD", engine._sell_heaps)
 
+    def test_cancel_buy_order(self):
+        engine = MatchingEngine()
+        order = Order(101, "BUY", 100, 5)
+
+        engine.add_order(order)
+
+        result = engine.cancel_order(101)
+
+        self.assertTrue(result)
+        self.assertEqual(len(engine.buy_orders), 0)    
+
 if __name__ == "__main__":
     unittest.main()

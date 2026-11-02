@@ -124,6 +124,26 @@ class MatchingEngine:
         print("Sell orders:", self.sell_orders)
         print("Trades:", self.trades)
 
+    def cancel_order(self, order_id):
+        for symbol in list(self._buy_heaps):
+            buy_heap = self._buy_heaps[symbol]
+            sell_heap = self._sell_heaps[symbol]
+
+            for heap in (buy_heap, sell_heap):
+                for index, entry in enumerate(heap):
+                    if entry[2].order_id == order_id:
+                        heap.pop(index)
+                        heapq.heapify(heap)
+                        self.order_ids.remove(order_id)
+
+                        if not buy_heap and not sell_heap:
+                            del self._buy_heaps[symbol]
+                            del self._sell_heaps[symbol]
+
+                        return True
+
+        return False
+
 
 if __name__ == "__main__":
     engine = MatchingEngine()
