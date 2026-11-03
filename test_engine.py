@@ -247,7 +247,18 @@ class TestMatchingEngine(unittest.TestCase):
         result = engine.cancel_order(101)
 
         self.assertTrue(result)
-        self.assertEqual(len(engine.buy_orders), 0)    
+        self.assertEqual(len(engine.buy_orders), 0)   
+
+    def test_cancel_sell_order(self):
+        engine = MatchingEngine()
+        order = Order(102, "SELL", 110, 5)
+
+        engine.add_order(order)
+
+        result = engine.cancel_order(102)
+
+        self.assertTrue(result)
+        self.assertEqual(len(engine.sell_orders), 0) 
 
 if __name__ == "__main__":
     unittest.main()
