@@ -260,5 +260,23 @@ class TestMatchingEngine(unittest.TestCase):
         self.assertTrue(result)
         self.assertEqual(len(engine.sell_orders), 0) 
 
+    def test_cancel_non_existing_order(self):
+        engine = MatchingEngine()
+
+        result = engine.cancel_order(999)
+
+        self.assertFalse(result)
+
+    def test_order_id_can_be_reused_after_cancellation(self):
+        engine = MatchingEngine()
+
+        engine.add_order(Order(101, "BUY", 100, 5))
+        engine.cancel_order(101)
+
+        engine.add_order(Order(101, "BUY", 110, 10))
+
+        self.assertEqual(len(engine.buy_orders), 1)
+        self.assertEqual(engine.buy_orders[0].order_id, 101)
+
 if __name__ == "__main__":
     unittest.main()
