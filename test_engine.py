@@ -260,6 +260,21 @@ class TestMatchingEngine(unittest.TestCase):
         self.assertTrue(result)
         self.assertEqual(len(engine.sell_orders), 0) 
 
+    def test_cancel_partially_filled_order(self):
+        engine = MatchingEngine()
+
+        engine.add_order(Order(1, "BUY", 100, 10))
+        engine.add_order(Order(2, "SELL", 95, 6))
+
+        engine.match_orders()
+
+        result = engine.cancel_order(1)
+
+        self.assertTrue(result)
+        self.assertEqual(len(engine.buy_orders), 0)
+        self.assertEqual(len(engine.trades), 1)
+        self.assertEqual(engine.trades[0]["quantity"], 6)
+
     def test_cancel_non_existing_order(self):
         engine = MatchingEngine()
 
