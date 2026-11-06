@@ -44,7 +44,41 @@ def benchmark_matching(total_orders=1000, repeats=5):
             f"{(2 * total_orders) / (avg_insert + avg_match):.2f} orders/second"
         )
 
+def benchmark_cancellation(total_orders=1000, repeats=5):
+    cancellation_times = []
+
+    for _ in range(repeats):
+        engine = MatchingEngine()
+
+        for i in range(1, total_orders + 1):
+            engine.add_order(Order(i, "BUY", 100.0, 1))
+
+        start = time.perf_counter()
+
+        for i in range(1, total_orders + 1):
+            engine.cancel_order(i)
+
+        cancellation_times.append(time.perf_counter() - start)
+
+        assert len(engine.buy_orders) == 0
+
+    avg_time = sum(cancellation_times) / repeats
+
+    print(f"\nCancellation orders: {total_orders}")
+    print(f"Average cancellation time: {avg_time:.6f} seconds")
+    print(
+        f"Cancellation throughput: "
+        f"{total_orders / avg_time:.2f} orders/second"
+    )
+
 
 if __name__ == "__main__":
+    print("=== Matching Benchmark ===")
+
     for size in (1000, 5000, 10000):
         benchmark_matching(total_orders=size)
+
+    print("\n=== Cancellation Benchmark ===")
+
+    for size in (1000, 5000, 10000):
+        benchmark_cancellation(total_orders=size)
